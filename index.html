@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendrier de Réservation</title>
     <style>
         body {
@@ -11,7 +9,7 @@
             text-align: center;
         }
         .calendar-container {
-            max-width: 700px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -28,30 +26,36 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-        }
-        .day:hover {
-            background-color: #e0f7fa;
-            cursor: pointer;
+            display: flex;
+            flex-direction: column;
         }
         .time-slot {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px;
             margin-top: 5px;
-            padding: 5px;
             border-radius: 5px;
-            background-color: #f0f0f0;
-        }
-        .time-slot div {
-            padding: 5px;
-            border-radius: 5px;
-            margin: 2px;
-            cursor: pointer;
         }
         .morning { background-color: #e3f2fd; }
         .afternoon { background-color: #ffe0b2; }
+        .activity {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            background-color: white;
+        }
+        .activity:hover {
+            background-color: #f0f0f0;
+        }
         .reserved {
             background-color: #b0bec5 !important;
             cursor: not-allowed;
+        }
+        .reserved span {
+            color: #333;
         }
         /* Style de la pop-up */
         #reservation-popup {

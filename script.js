@@ -42,8 +42,7 @@ function renderCalendar() {
 
         ['Matinée', 'Après-midi'].forEach(time => {
             const timeSlot = document.createElement('div');
-            timeSlot.classList.add('time-slot');
-            timeSlot.textContent = time;
+            timeSlot.classList.add('time-slot', time === 'Matinée' ? 'morning' : 'afternoon');
 
             ['CTRM', 'CLM', 'CRM'].forEach(activity => {
                 const key = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${day}-${time}-${activity}`;
@@ -74,7 +73,7 @@ function renderCalendar() {
     }
 }
 
-// Fonction pour ouvrir la fenêtre pop-up de réservation
+// Fonction pour ouvrir la pop-up de réservation
 function openReservationPopup(day, time, activity) {
     selectedDate = `${day}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
     selectedTime = time;
@@ -87,38 +86,14 @@ function openReservationPopup(day, time, activity) {
     document.getElementById('reservation-popup').style.display = 'block';
 }
 
-// Fonction pour fermer la fenêtre pop-up
-function closeReservationPopup() {
-    document.getElementById('reservation-popup').style.display = 'none';
-}
-
-// Fonction pour valider la réservation
+// Fonction pour envoyer l'e-mail
 function confirmReservation() {
     const name = document.getElementById('professor-name').value.trim();
-    if (!name) {
-        alert("Veuillez entrer votre nom.");
-        return;
-    }
+    if (!name) return alert("Veuillez entrer votre nom.");
 
-    const isAlreadyReserved = reservations.some(r =>
-        r.date === selectedDate &&
-        r.time === selectedTime &&
-        r.activity === selectedActivity
-    );
+    window.location.href = `mailto:jean-marie-jose.chazel@ac-aix-marseille.fr?subject=Demande de réservation&body=Professeur ${name} demande ${selectedTime} - ${selectedActivity} le ${selectedDate}.`;
 
-    if (isAlreadyReserved) {
-        alert("Désolé, ce créneau est déjà occupé. Merci de bien vouloir en choisir un autre.");
-        closeReservationPopup();
-        return;
-    }
-
-    const recipient = "votre-email@example.com"; // Remplacez par votre email
-    const subject = `Demande de réservation pour ${selectedDate}`;
-    const body = `Bonjour,\n\nLe professeur ${name} souhaite réserver le créneau ${selectedTime} (${selectedActivity}) pour la date du ${selectedDate}.\n\nMerci.\n\nCordialement.`;
-
-    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    alert("Merci, votre demande va être prise en compte et nous bloquerons vos désidératas si cela est possible.");
+    alert("Votre demande a bien été envoyée.");
     closeReservationPopup();
 }
 
