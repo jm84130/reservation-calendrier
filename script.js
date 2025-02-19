@@ -8,7 +8,7 @@ let selectedTime = null;
 let selectedActivity = null;
 let reservations = [];
 
-// Fonction pour charger les réservations depuis GitHub
+// Charger les réservations depuis GitHub
 async function loadReservations() {
     try {
         const response = await fetch(JSON_URL);
@@ -20,7 +20,7 @@ async function loadReservations() {
     }
 }
 
-// Fonction pour afficher le calendrier
+// Afficher le calendrier avec les créneaux et niveaux
 function renderCalendar() {
     const calendarElement = document.getElementById('calendar');
     const monthYearHeader = document.getElementById('current-month-year');
@@ -73,7 +73,7 @@ function renderCalendar() {
     }
 }
 
-// Fonction pour ouvrir la pop-up de réservation
+// Ouvrir la pop-up de réservation
 function openReservationPopup(day, time, activity) {
     selectedDate = `${day}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
     selectedTime = time;
@@ -86,7 +86,7 @@ function openReservationPopup(day, time, activity) {
     document.getElementById('reservation-popup').style.display = 'block';
 }
 
-// Fonction pour envoyer l'e-mail
+// Envoi d'email
 function confirmReservation() {
     const name = document.getElementById('professor-name').value.trim();
     if (!name) return alert("Veuillez entrer votre nom.");

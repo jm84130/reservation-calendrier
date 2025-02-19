@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendrier de Réservation</title>
     <style>
         body {
@@ -22,30 +24,35 @@
             gap: 5px;
         }
         .day {
-            padding: 10px;
+            display: flex;
+            flex-direction: column;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
+            text-align: center;
+            font-size: 12px;
         }
         .time-slot {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             padding: 5px;
-            margin-top: 5px;
-            border-radius: 5px;
         }
-        .morning { background-color: #e3f2fd; }
-        .afternoon { background-color: #ffe0b2; }
+        .time-slot.morning {
+            background-color: #e3f2fd;
+        }
+        .time-slot.afternoon {
+            background-color: #ffe0b2;
+        }
         .activity {
             flex: 1;
+            margin: 2px;
             padding: 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
             background-color: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
         }
         .activity:hover {
             background-color: #f0f0f0;
@@ -53,9 +60,6 @@
         .reserved {
             background-color: #b0bec5 !important;
             cursor: not-allowed;
-        }
-        .reserved span {
-            color: #333;
         }
         /* Style de la pop-up */
         #reservation-popup {
@@ -83,7 +87,11 @@
 
 <h1>Calendrier de Réservation</h1>
 <div class="calendar-container">
-    <h2 id="current-month-year"></h2>
+    <div class="calendar-header">
+        <button onclick="changeMonth(-1)">Précédent</button>
+        <h2 id="current-month-year"></h2>
+        <button onclick="changeMonth(1)">Suivant</button>
+    </div>
     <div class="calendar" id="calendar"></div>
 </div>
 
