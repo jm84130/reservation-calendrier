@@ -1,14 +1,13 @@
-// URL du fichier reservations.json sur GitHub
-const JSON_URL = "https://raw.githubusercontent.com/votre-utilisateur/reservation-calendrier/main/reservations.json";
+// URL du fichier JSON sur GitHub (À MODIFIER AVEC TON LIEN GITHUB)
+const JSON_URL = "https://raw.githubusercontent.com/jm84130/reservation-calendrier/main/reservations.json";
 
-// Variables globales
 let currentDate = new Date();
 let selectedDate = null;
 let selectedTime = null;
 let selectedActivity = null;
 let reservations = [];
 
-// Charger les réservations depuis GitHub
+// 🔹 Charger les réservations depuis le fichier GitHub
 async function loadReservations() {
     try {
         const response = await fetch(JSON_URL);
@@ -20,7 +19,7 @@ async function loadReservations() {
     }
 }
 
-// Afficher le calendrier avec les créneaux et niveaux
+// 🔹 Afficher le calendrier avec les créneaux et les réservations
 function renderCalendar() {
     const calendarElement = document.getElementById('calendar');
     const monthYearHeader = document.getElementById('current-month-year');
@@ -73,7 +72,7 @@ function renderCalendar() {
     }
 }
 
-// Ouvrir la pop-up de réservation
+// 🔹 Ouvrir la pop-up de réservation
 function openReservationPopup(day, time, activity) {
     selectedDate = `${day}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
     selectedTime = time;
@@ -86,16 +85,67 @@ function openReservationPopup(day, time, activity) {
     document.getElementById('reservation-popup').style.display = 'block';
 }
 
-// Envoi d'email
+// 🔹 Fermer la pop-up
+function closeReservationPopup() {
+    document.getElementById('reservation-popup').style.display = 'none';
+}
+
+// 🔹 Envoi d'un e-mail pour la réservation
 function confirmReservation() {
     const name = document.getElementById('professor-name').value.trim();
-    if (!name) return alert("Veuillez entrer votre nom.");
+    if (!name) {
+        alert("Veuillez entrer votre nom.");
+        return;
+    }
 
-    window.location.href = `mailto:jean-marie-jose.chazel@ac-aix-marseille.fr?subject=Demande de réservation&body=Professeur ${name} demande ${selectedTime} - ${selectedActivity} le ${selectedDate}.`;
+    // Demande l'adresse académique
+    const emailAcad = prompt("Veuillez entrer votre adresse académique (@ac-académie.fr) :").trim();
+    if (!emailAcad || !emailAcad.endsWith("@ac-aix-marseille.fr")) {
+        alert("Adresse académique invalide. Veuillez entrer une adresse @ac-aix-marseille.fr.");
+        return;
+    }
+
+    // Empêcher la réservation d'un créneau déjà pris
+    const isAlreadyReserved = reservations.some(r =>
+        r.date === selectedDate &&
+        r.time === selectedTime &&
+        r.activity === selectedActivity
+    );
+
+    if (isAlreadyReserved) {
+        alert("Ce créneau est déjà réservé. Veuillez en choisir un autre.");
+        closeReservationPopup();
+        return;
+    }
+
+    // Génération de l'e-mail prérempli
+    const subject = encodeURIComponent("Demande de réservation de créneau");
+    const body = encodeURIComponent(
+        `Bonjour,\n\nJe souhaite réserver ce créneau :\n\n` +
+        `- 📅 Date : ${selectedDate}\n` +
+        `- 🕒 Créneau : ${selectedTime}\n` +
+        `- 🎓 Niveau : ${selectedActivity}\n\n` +
+        `Merci.\n\nCordialement,\nM./Mme ${name}\n📩 Adresse académique : ${emailAcad}`
+    );
+
+    // Ouvrir l'application mail avec l'e-mail prérempli
+    window.location.href = `mailto:jean-marie-jose.chazel@ac-aix-marseille.fr?subject=${subject}&body=${body}`;
 
     alert("Votre demande a bien été envoyée.");
     closeReservationPopup();
+
+    const validateButton = document.querySelector('.validate');
+    if (validateButton !== null) {
+    validateButton.disabled = true;
 }
 
-// Charger les réservations au démarrage
+
+
+// 🔹 Changer de mois
+function changeMonth(offset) {
+    currentDate.setMonth(currentDate.getMonth() + offset);
+    renderCalendar();
+}
+
+// 🔹 Charger les réservations au démarrage
 loadReservations();

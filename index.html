@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendrier de Réservation</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+        }
+
+        h1 {
             text-align: center;
         }
+
         .calendar-container {
             max-width: 900px;
             margin: 0 auto;
@@ -18,34 +20,81 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header button {
+            padding: 5px 10px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            background-color: #00796b;
+            color: white;
+            cursor: pointer;
+        }
+
+        .calendar-header button:hover {
+            background-color: #005a4a;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 5px;
         }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px 0;
+            font-size: 14px;
+        }
+
         .day {
             display: flex;
             flex-direction: column;
+            text-align: center;
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-            text-align: center;
+            overflow: hidden;
             font-size: 12px;
         }
+
         .time-slot {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 5px;
+            padding: 5px 0;
         }
+
         .time-slot.morning {
             background-color: #e3f2fd;
         }
+
         .time-slot.afternoon {
             background-color: #ffe0b2;
         }
+
+        .activity-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px;
+        }
+
         .activity {
             flex: 1;
-            margin: 2px;
+            margin: 0 2px;
             padding: 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -54,33 +103,54 @@
             text-align: center;
             font-size: 12px;
         }
+
         .activity:hover {
             background-color: #f0f0f0;
         }
+
         .reserved {
             background-color: #b0bec5 !important;
             cursor: not-allowed;
         }
-        /* Style de la pop-up */
-        #reservation-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+        .reserved span {
+            color: #333;
         }
-        #reservation-popup button {
-            margin: 5px;
-            padding: 10px;
+
+        .selected {
+            border: 2px solid #00796b;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 14px;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
-        .validate { background-color: green; color: white; }
-        .cancel { background-color: red; color: white; }
+
+        .buttons button.reserve {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .buttons button.reserve:hover {
+            background-color: #388e3c;
+        }
+
+        #name-input {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +163,120 @@
         <button onclick="changeMonth(1)">Suivant</button>
     </div>
     <div class="calendar" id="calendar"></div>
+    <div class="buttons">
+        <input type="text" id="name-input" placeholder="Entrez votre nom" />
+        <button class="reserve" onclick="confirmReservation()">Réserver</button>
+    </div>
 </div>
+
+<script>
+    const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    let currentDate = new Date();
+    let selectedActivity = null;
+
+    function renderCalendar(date) {
+        const calendar = document.getElementById('calendar');
+        const monthYearHeader = document.getElementById('current-month-year');
+
+        const monthNames = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
+            'Septembre', 'Octobre', 'Novembre', 'Décembre'
+        ];
+        monthYearHeader.textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+
+
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+        calendar.innerHTML = '';
+
+        daysOfWeek.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.textContent = day;
+            dayHeader.classList.add('day-header');
+            calendar.appendChild(dayHeader);
+        });
+
+        for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+            const emptyCell = document.createElement('div');
+            calendar.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= lastDay; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('day');
+
+            const dayNumber = document.createElement('div');
+            dayNumber.textContent = day;
+            dayCell.appendChild(dayNumber);
+
+            ['morning', 'afternoon'].forEach((time) => {
+                const timeSlot = document.createElement('div');
+                timeSlot.classList.add('time-slot', time);
+
+                const activityRow = document.createElement('div');
+                activityRow.classList.add('activity-row');
+
+                ['CTRM', 'CLM', 'CRM'].forEach(activity => {
+                    const activityDiv = document.createElement('div');
+                    activityDiv.textContent = activity;
+                    activityDiv.classList.add('activity');
+
+                    const key = `${date.getFullYear()}-${date.getMonth() + 1}-${day}-${time}-${activity}`;
+
+                    if (reservations[key]) {
+                        activityDiv.textContent = `${activity} (${reservations[key]})`;
+                        activityDiv.classList.add('reserved');
+                    } else {
+                        activityDiv.addEventListener('click', () => selectActivity(activityDiv, key));
+                    }
+
+                    activityRow.appendChild(activityDiv);
+                });
+
+                timeSlot.appendChild(activityRow);
+                dayCell.appendChild(timeSlot);
+            });
+
+            calendar.appendChild(dayCell);
+        }
+    }
+
+    function selectActivity(activityDiv, key) {
+        if (activityDiv.classList.contains('reserved')) return;
+
+        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        activityDiv.classList.add('selected');
+        selectedActivity = { div: activityDiv, key };
+    }
+
+    function confirmReservation() {
+        const nameInput = document.getElementById('name-input');
+        const name = nameInput.value.trim();
+
+        if (!selectedActivity || !name) {
+            alert('Veuillez sélectionner une activité et entrer votre nom.');
+            return;
+        }
+
+        const { div, key } = selectedActivity;
+
+        reservations[key] = name;
+  
+        div.innerHTML = `${div.textContent.split(' (')[0]} <br> <strong>${name}</strong>`;
+        div.classList.add('reserved');
+        div.classList.remove('selected');
+        selectedActivity = null;
+        nameInput.value = '';
+    }
+
+    function changeMonth(offset) {
+        currentDate.setMonth(currentDate.getMonth() + offset);
+        renderCalendar(currentDate);
+    }
+
+    renderCalendar(currentDate);
+</script>
 
 <!-- Fenêtre pop-up de réservation -->
 <div id="reservation-popup">
