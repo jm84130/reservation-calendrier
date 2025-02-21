@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="fr">
 <head>
+    <meta charset="UTF-8">
     <title>Calendrier de Réservation</title>
     <style>
         body {
@@ -38,10 +39,26 @@
             cursor: pointer;
         }
 
+        .calendar-header button:hover {
+            background-color: #005a4a;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 5px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px 0;
+            font-size: 14px;
         }
 
         .day {
@@ -51,37 +68,45 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #f9f9f9;
-            padding: 5px;
+            overflow: hidden;
             font-size: 12px;
         }
 
         .time-slot {
-            border-top: 1px solid #ccc;
-            padding: 5px;
-            font-size: 12px;
+            flex: 1;
             display: flex;
             flex-direction: column;
+            padding: 5px 0;
         }
 
-        .morning { background-color: #e3f2fd; }
-        .afternoon { background-color: #ffe0b2; }
-        
+        .time-slot.morning {
+            background-color: #e3f2fd;
+        }
+
+        .time-slot.afternoon {
+            background-color: #ffe0b2;
+        }
+
         .activity-row {
             display: flex;
             justify-content: space-between;
-            margin-top: 5px;
+            padding: 2px;
         }
 
         .activity {
             flex: 1;
-            margin: 2px;
+            margin: 0 2px;
             padding: 5px;
             border: 1px solid #ddd;
-            border-radius: 3px;
+            border-radius: 5px;
             background-color: white;
             cursor: pointer;
             text-align: center;
-            font-size: 10px;
+            font-size: 12px;
+        }
+
+        .activity:hover {
+            background-color: #f0f0f0;
         }
 
         .reserved {
@@ -89,6 +114,44 @@
             cursor: not-allowed;
         }
 
+        .reserved span {
+            color: #333;
+        }
+
+        .selected {
+            border: 2px solid #00796b;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .buttons button.reserve {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .buttons button.reserve:hover {
+            background-color: #388e3c;
+        }
+
+        #name-input {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +164,10 @@
         <button onclick="changeMonth(1)">Suivant</button>
     </div>
     <div class="calendar" id="calendar"></div>
+    <div class="buttons">
+        <input type="text" id="name-input" placeholder="Entrez votre nom" />
+        <button class="reserve" onclick="confirmReservation()">Réserver</button>
+    </div>
 </div>
 
 <!-- Inclusion du fichier script.js -->
